@@ -1,6 +1,6 @@
 # Reliable Enterprise AI
 
-> **Designing AI systems that enterprises can trust in production.**
+> **LEarning to design AI systems that enterprises can trust in production.**
 > Architecture · Evaluation · Governance
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
