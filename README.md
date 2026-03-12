@@ -149,20 +149,6 @@ cd rag-patterns/basic-rag
 
 ---
 
-## Contributing
-
-Contributions, issues, and discussions are welcome.
-See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for detailed guidelines.
-
----
-
-## The Reliable Enterprise AI Checklist
-
-📥 **[Download: Reliable Enterprise AI Checklist](checklist/RELIABLE-ENTERPRISE-AI-CHECKLIST.md)**
-Use it to audit and score your AI systems for production readiness.
-
----
-
 ## Author
 
 **Raúl Ferrer** — AI Systems Reliability Architect
