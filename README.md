@@ -1,165 +1,154 @@
 # Reliable Enterprise AI
 
-> **LEarning to design AI systems that enterprises can trust in production.**
-> Architecture · Evaluation · Governance
+> *Most enterprise AI systems work in the demo. They fail silently in production.*
+> *This repository documents how to build RAG systems that don't.*
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Java](https://img.shields.io/badge/Java-17%2B-blue)](https://openjdk.org/)
-[![LangChain4j](https://img.shields.io/badge/LangChain4j-latest-green)](https://github.com/langchain4j/langchain4j)
-[![Weaviate](https://img.shields.io/badge/Weaviate-vector--db-orange)](https://weaviate.io/)
+**A hands-on knowledge base for building, evaluating and auditing production-grade RAG systems with Java, LangChain4j and Weaviate — from reliability patterns to EU AI Act compliance.**
 
 ---
 
-## What is Reliable Enterprise AI?
+## Who this is for
 
-Most enterprise AI projects fail **not because of models**, but because of gaps in **architecture, evaluation, observability, and governance**.
+- Engineers building RAG systems in Java/Spring Boot environments
+- Tech leads responsible for AI systems in production
+- Teams preparing for EU AI Act compliance
+- Anyone who has shipped an AI system and watched it quietly degrade
 
-**Reliable Enterprise AI (RAI)** is a framework for building production-grade AI systems with:
+## The core problem
 
-* 🏗️ **Architecture** that scales beyond the demo
-* 📊 **Evaluation** that measures what actually matters
-* 🔒 **Governance** that satisfies regulators and stakeholders
-* 👁️ **Observability** for continuous reliability monitoring
-
-This repository is the **technical companion** to the articles and framework developed by [Raúl Ferrer](https://www.linkedin.com/in/raulferrergarcia/) on production AI systems.
+The gap between a RAG system that *demos well* and one that *works reliably at scale* is where most enterprise AI projects fail. This repository maps that gap — technically, operationally and legally.
 
 ---
 
-## The 5 Layers Framework
-
-```
-┌─────────────────────────────────────────┐
-│              USER REQUEST               │
-└────────────────────┬────────────────────┘
-                     │
-┌────────────────────▼────────────────────┐
-│           APPLICATION LAYER             │
-│  Orchestration · API · Session mgmt     │
-└────────────────────┬────────────────────┘
-                     │
-┌────────────────────▼────────────────────┐
-│             CONTEXT LAYER               │
-│  RAG · Retrieval · Re-ranking · Memory  │
-└────────────────────┬────────────────────┘
-                     │
-┌────────────────────▼────────────────────┐
-│              MODEL LAYER                │
-│  LLM · Prompts · Fine-tuning · Routing  │
-└────────────────────┬────────────────────┘
-                     │
-┌────────────────────▼────────────────────┐
-│           EVALUATION LAYER              │
-│  Metrics · Benchmarks · Quality Gates   │
-└────────────────────┬────────────────────┘
-                     │
-┌────────────────────▼────────────────────┐
-│           GOVERNANCE LAYER              │
-│  Audit · Compliance · EU AI Act · Drift │
-└────────────────────┬────────────────────┘
-                     │
-┌────────────────────▼────────────────────┐
-│              MONITORING                 │
-│  Observability · Alerts · Dashboards    │
-└─────────────────────────────────────────┘
-```
-
----
-
-## Repository Structure
+## Structure
 
 ```
 reliable-enterprise-ai/
-│
-├── architecture/              # Hexagonal & layered AI system design
-│   ├── README.md
-│   ├── hexagonal-ai-system/   # Full hexagonal architecture example
-│   └── patterns/              # Reusable architectural patterns
-│
-├── rag-patterns/              # Production RAG implementations
-│   ├── README.md
-│   ├── basic-rag/             # LangChain4j + Weaviate baseline
-│   ├── hybrid-search/         # Dense + sparse retrieval
-│   ├── reranking/             # Cross-encoder re-ranking pipeline
-│   └── context-compression/   # Reducing context window noise
-│
-├── evaluation-pipelines/      # LLM evaluation frameworks
-│   ├── README.md
-│   ├── metrics/               # Faithfulness, relevancy, precision
-│   ├── quality-gates/         # CI/CD integration for LLM quality
-│   └── hallucination-detection/ # Experiment + benchmark
-│
-├── governance-patterns/       # EU AI Act & compliance patterns
-│   ├── README.md
-│   ├── audit-trail/           # Traceability implementation
-│   ├── risk-classification/   # Annex III risk assessment templates
-│   └── drift-detection/       # Knowledge base decay monitoring
-│
-├── diagrams/                  # Architecture diagrams (Mermaid, PNG/SVG)
-│   └── README.md
-│
-├── checklist/                 # Reliable Enterprise AI Checklist
-│   └── RELIABLE-ENTERPRISE-AI-CHECKLIST.md
-│
-└── .github/
-    ├── CONTRIBUTING.md
-    └── DISCUSSION_TEMPLATE.md
+├── modules/
+│   ├── 01-rag-foundations/         # Core RAG pipeline: ingest → embed → retrieve → generate
+│   ├── 02-advanced-retrieval/      # Hybrid search, re-ranking, HyDE, query expansion
+│   ├── 03-reliability-patterns/    # Hallucination detection, confidence scoring, fallbacks
+│   ├── 04-evaluation-framework/    # RAGAs metrics, golden datasets, automated evaluation
+│   ├── 05-security/                # RAG poisoning, prompt injection, access control
+│   └── 06-eu-ai-act/               # Compliance checklist, logging, technical documentation
+├── docs/
+│   ├── architecture/               # System design decisions and ADRs
+│   ├── evaluation/                 # Evaluation methodology and benchmarks
+│   ├── compliance/                 # EU AI Act implementation guides
+│   └── security/                   # Threat models and mitigation patterns
+└── resources/                      # Reading lists, papers, reference implementations
 ```
 
 ---
 
-## Tech Stack
+## The Reliable Enterprise AI Audit Framework
 
-| Layer            | Technology       |
-| ---------------- | ---------------- |
-| Language         | Java 17+         |
-| AI Orchestration | LangChain4j      |
-| Vector Database  | Weaviate         |
-| LLM Evaluation   | RAGAS · DeepEval |
-| Observability    | Langfuse         |
-| Build            | Maven / Gradle   |
+The 5 dimensions every production RAG system must satisfy:
 
----
-
-## Articles & Resources
-
-> Each folder in this repo is the technical companion to a published article.
-
-| Article                                                                | Folder                  | Status    |
-| ---------------------------------------------------------------------- | ----------------------- | --------- |
-| [Reliable Enterprise AI: Why Architecture Matters More Than Models](#) | `architecture/`         | 🔜 Coming |
-| [Why Most RAG Systems Fail in Production](#)                           | `rag-patterns/`         | 🔜 Coming |
-| [The Architecture of Reliable Enterprise AI Systems](#)                | `architecture/`         | 🔜 Coming |
-| [Evaluation: The Missing Layer in Enterprise AI](#)                    | `evaluation-pipelines/` | 🔜 Coming |
-| [AI Governance for Reliable Enterprise AI](#)                          | `governance-patterns/`  | 🔜 Coming |
+| Dimension | What it measures | Status |
+|-----------|-----------------|--------|
+| **Performance** | Retrieval precision, latency, throughput at scale | 🔄 In progress |
+| **Reliability** | Hallucination rate, confidence calibration, graceful degradation | 🔄 In progress |
+| **Security** | Prompt injection resistance, data poisoning, access control | 📋 Planned |
+| **Compliance** | EU AI Act requirements, audit trails, documentation | 📋 Planned |
+| **Observability** | Tracing, monitoring, alerting for production AI | 📋 Planned |
 
 ---
 
-## Quickstart
+## Stack
 
-```bash
-git clone https://github.com/raulferrerdev/reliable-enterprise-ai.git
-cd reliable-enterprise-ai
-
-# Run the basic RAG demo (Java 17+, Docker required for Weaviate)
-cd rag-patterns/basic-rag
-./mvnw spring-boot:run
-```
-
-> Full setup instructions are in each module's README.
-
----
-
-## Author
-
-**Raúl Ferrer** — AI Systems Reliability Architect
-*Reliable Enterprise AI | RAG Architecture | LLM Evaluation*
-
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue)](https://www.linkedin.com/in/raulferrergarcia/)
-[![Medium](https://img.shields.io/badge/Medium-Articles-black)](https://medium.com/@raulferrer)
+| Layer | Technology |
+|-------|-----------|
+| Language | Java 21 |
+| Framework | Spring Boot 3.x |
+| AI orchestration | LangChain4j |
+| Vector database | Weaviate |
+| Evaluation | RAGAs (via Python bridge) |
+| Observability | OpenTelemetry + LangFuse |
+| Testing | JUnit 5 + Testcontainers |
 
 ---
 
-## License
+## Modules
 
-MIT © Raúl Ferrer
+### 01 · RAG Foundations
+*The baseline every enterprise RAG system needs before optimising anything.*
 
+Core pipeline: document ingestion → chunking → embedding → vector storage → retrieval → generation. Built with Spring Boot + LangChain4j + Weaviate. Fully tested, fully observable.
+
+→ [Go to module](modules/01-rag-foundations/README.md)
+
+### 02 · Advanced Retrieval
+*Why cosine similarity is not enough for production.*
+
+Hybrid search (dense + sparse), cross-encoder re-ranking, HyDE (Hypothetical Document Embeddings), query expansion strategies. Benchmarked against the baseline from Module 01.
+
+→ [Go to module](modules/02-advanced-retrieval/README.md)
+
+### 03 · Reliability Patterns
+*The module most RAG tutorials skip entirely.*
+
+Hallucination detection, confidence scoring, fallback strategies, circuit breakers for LLMs. The patterns that separate a RAG proof-of-concept from a system you can put your name on.
+
+→ [Go to module](modules/03-reliability-patterns/README.md)
+
+### 04 · Evaluation Framework
+*You cannot improve what you cannot measure.*
+
+RAGAs metrics (Faithfulness, Answer Relevancy, Context Recall), golden dataset construction, automated regression testing for RAG quality. Reusable across all modules.
+
+→ [Go to module](modules/04-evaluation-framework/README.md)
+
+### 05 · Security
+*The attack surface nobody is watching.*
+
+RAG-specific threats: prompt injection, data poisoning, PII leakage, access control in vector databases. Red-teaming methodology for enterprise RAG systems.
+
+→ [Go to module](modules/05-security/README.md)
+
+### 06 · EU AI Act
+*Compliance is not a checkbox. It is an architecture decision.*
+
+Technical implementation of EU AI Act requirements for high-risk AI systems: logging, audit trails, technical documentation, conformity assessment. Practical checklist with Java/Spring Boot examples.
+
+→ [Go to module](modules/06-eu-ai-act/README.md)
+
+---
+
+## Progress log
+
+| Week | Milestone | Module |
+|------|-----------|--------|
+| S1–4 | Java/Spring Boot foundations, project setup | Setup |
+| S5–6 | First embedding pipeline with Weaviate | 01 |
+| S7–8 | LangChain4j integration, first RAG end-to-end | 01 |
+| S9–10 | Full RAG pipeline with basic evaluation | 01 + 04 |
+| S11–12 | Baseline benchmarks published | 01 + 04 |
+| S13–14 | Chunking strategy comparison | 02 |
+| S15–16 | Hybrid search + re-ranking | 02 |
+| S17–18 | RAGAs evaluation module | 04 |
+| S19–20 | Hallucination detection patterns | 03 |
+| ... | ... | ... |
+
+---
+
+## Writing
+
+Articles and posts from this project:
+
+- [Reliable Enterprise AI: Why Architecture Matters More Than Prompts](https://levelup.gitconnected.com/beyond-the-prompt-why-enterprise-ai-needs-architecture-not-just-clever-prompts-3f2523baa47f)
+- [Reliable Enterprise AI: What Enterprise Architects Must Understand About Transformers](https://medium.com/gitconnected/reliable-enterprise-ai-attention-is-all-you-need-explained-for-enterprise-architects-bfaebf2c0089)
+
+---
+
+## About
+
+Built by **[Raúl Ferrer García]** — Tech Lead · PhD · Building Reliable Enterprise AI.
+
+13 years leading engineering teams at Vicens Vives Digital. Author of [*iOS Architecture Patterns* (Apress)](https://www.amazon.com/iOS-Architecture-Patterns-VIPER-Swift/dp/1484290682) . Currently focused on the intersection of production reliability, RAG architecture and EU AI Act compliance.
+
+→ [LinkedIn](https://www.linkedin.com/in/raulferrergarcia/) · [Medium](https://medium.com/@raulferrer)
+
+---
+
+*"You can't lead the reliability of an AI system if you've never built one yourself."*
