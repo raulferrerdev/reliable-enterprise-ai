@@ -1,0 +1,47 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '4.0.4'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.phoneix'
+version = '0.0.1-SNAPSHOT'
+description = 'auditor'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'dev.langchain4j:langchain4j-ollama-spring-boot-starter:0.31.0'
+
+    // El cargador de PDF (Ojo: el nombre correcto suele ser este)
+    implementation 'dev.langchain4j:langchain4j-document-parser-apache-pdfbox:0.31.0'
+
+    // Embeddings locales (Para procesar el texto sin salir de tu CPU)
+    implementation 'dev.langchain4j:langchain4j-embeddings-all-minilm-l6-v2:0.31.0'
+
+    // Persistencia Vectorial en Weaviate
+    implementation 'dev.langchain4j:langchain4j-weaviate:0.31.0'
+
+    // Utilidades extra de Spring
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

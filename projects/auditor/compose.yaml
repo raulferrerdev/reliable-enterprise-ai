@@ -1,0 +1,17 @@
+services:
+  weaviate:
+    image: semitechnologies/weaviate:1.24.1
+    ports:
+      - '8080:8080'
+      - '50051:50051' # Puerto gRPC, vital para la velocidad de búsqueda vectorial
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
+      PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
+      DEFAULT_VECTORIZER_MODULE: 'none' # Nosotros enviamos los vectores desde Java, no los crea la DB
+      CLUSTER_HOSTNAME: 'node1'
+    volumes:
+      - weaviate_data:/var/lib/weaviate
+
+volumes:
+  weaviate_data:
