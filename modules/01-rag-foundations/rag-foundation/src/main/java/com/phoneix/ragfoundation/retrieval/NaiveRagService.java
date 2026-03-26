@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,11 +26,14 @@ public class NaiveRagService {
 
     private final ChatModel chatModel;
     private final ContentRetriever retriever;
+    private final RetrievalAuditLog auditLog;
 
     public NaiveRagService(ChatModel chatModel,
                            EmbeddingModel embeddingModel,
-                           EmbeddingStore<TextSegment> embeddingStore) {
+                           EmbeddingStore<TextSegment> embeddingStore,
+                           RetrievalAuditLog auditLog) {
         this.chatModel = chatModel;
+        this.auditLog = auditLog;
         this.retriever = EmbeddingStoreContentRetriever.builder()
                 .embeddingModel(embeddingModel)
                 .embeddingStore(embeddingStore)
@@ -39,28 +43,41 @@ public class NaiveRagService {
     }
 
     public RagResponse query(String userQuestion) {
-        log.info("RAG query received: {}", userQuestion);
+        String queryId = java.util.UUID.randomUUID().toString().substring(0, 8);
+        log.info("[{}] RAG query: {}", queryId, userQuestion);
 
         List<Content> retrievedContents = retriever.retrieve(
                 Query.from(userQuestion)
         );
 
-        if (retrievedContents.isEmpty() || retrievedContents.size() < MIN_CHUNKS_REQUIRED) {
-            log.warn("No relevant context found for query: {}", userQuestion);
-            return RagResponse.noContextFound(userQuestion);
+        RagResponse response;
+
+        if (retrievedContents.isEmpty() ||
+                retrievedContents.size() < MIN_CHUNKS_REQUIRED) {
+
+            response = RagResponse.noContextFound(userQuestion);
+
+        } else {
+            String context = retrievedContents.stream()
+                    .map(c -> c.textSegment().text())
+                    .collect(Collectors.joining("\n\n---\n\n"));
+
+            String answer = chatModel.chat(buildPrompt(userQuestion, context));
+            response = RagResponse.of(userQuestion, answer,
+                    retrievedContents.size());
         }
 
-        String context = retrievedContents.stream()
-                .map(c -> c.textSegment().text())
-                .collect(Collectors.joining("\n\n---\n\n"));
+        // Audit log — cada query queda trazada
+        auditLog.log(new RetrievalAuditLog.RetrievalEvent(
+                queryId,
+                response.question(),
+                response.chunksUsed(),
+                response.contextFound(),
+                response.answer(),
+                Instant.now()
+        ));
 
-        String augmentedPrompt = buildPrompt(userQuestion, context);
-
-        String answer = chatModel.chat(augmentedPrompt);
-
-        log.info("RAG response generated. Chunks used: {}", retrievedContents.size());
-
-        return RagResponse.of(userQuestion, answer, retrievedContents.size());
+        return response;
     }
 
     private String buildPrompt(String question, String context) {
