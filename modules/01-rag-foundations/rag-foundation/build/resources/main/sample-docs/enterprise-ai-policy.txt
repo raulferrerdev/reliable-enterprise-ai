@@ -1,0 +1,17 @@
+ENTERPRISE AI USAGE POLICY — VERSION 1.0
+
+Section 1: Purpose
+This policy establishes guidelines for the responsible deployment of AI systems
+within enterprise environments. All AI systems must be reliable, auditable,
+and compliant with applicable regulations including the EU AI Act.
+
+Section 2: Reliability Requirements
+All production AI systems must maintain a minimum retrieval precision of 80%.
+Systems must include fallback mechanisms when context confidence falls below
+acceptable thresholds. Hallucination detection must be implemented before
+any system is promoted to production.
+
+Section 3: Compliance
+Systems classified as high-risk under the EU AI Act must maintain complete
+audit trails of all inputs, retrieved context, and generated outputs.
+Technical documentation must be updated with each significant model change.

@@ -5,7 +5,7 @@
       <profile name="Gradle Imported" enabled="true">
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
-          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-configuration-processor/4.0.4/913032ff41310689ddbd9038f50956cd9dc740a2/spring-boot-configuration-processor-4.0.4.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-configuration-processor/3.4.5/e5ae93bf2b951d13c310162351a2818e169b7519/spring-boot-configuration-processor-3.4.5.jar" />
         </processorPath>
         <module name="rag-foundation.main" />
       </profile>

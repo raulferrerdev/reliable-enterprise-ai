@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '4.0.4'
+    id 'org.springframework.boot' version '3.4.5'
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -16,6 +16,7 @@ java {
 ext {
     set("langchain4jVersion", "1.0.0")
     set("langchain4jBetaVersion", "1.0.0-beta4")
+    set("langchain4jWeaviateVersion", "1.10.0-beta18")
 }
 
 repositories {
@@ -28,16 +29,20 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
 
-    // LangChain4j — core (versión stable)
+    // LangChain4j core
     implementation("dev.langchain4j:langchain4j:${property("langchain4jVersion")}")
-    implementation("dev.langchain4j:langchain4j-open-ai:${property("langchain4jVersion")}")
+
+    // LangChain4j - Ollama
+    implementation("dev.langchain4j:langchain4j-ollama:${property("langchain4jBetaVersion")}")
+    implementation("dev.langchain4j:langchain4j-ollama-spring-boot-starter:${property("langchain4jBetaVersion")}")
+
 
     // LangChain4j — Spring Boot starters (versión beta — track separado)
     implementation("dev.langchain4j:langchain4j-spring-boot-starter:${property("langchain4jBetaVersion")}")
     implementation("dev.langchain4j:langchain4j-open-ai-spring-boot-starter:${property("langchain4jBetaVersion")}")
 
     // LangChain4j — Weaviate (versión beta — track separado)
-    implementation("dev.langchain4j:langchain4j-weaviate:${property("langchain4jBetaVersion")}")
+    implementation("dev.langchain4j:langchain4j-weaviate:${property("langchain4jWeaviateVersion")}")
 
     // Config processor
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
@@ -49,4 +54,9 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+configurations.configureEach {
+    // This removes the "Multiple HTTP clients" conflict at the source
+    exclude group: 'dev.langchain4j', module: 'langchain4j-http-client-jdk'
 }
