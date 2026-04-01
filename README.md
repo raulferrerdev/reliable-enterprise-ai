@@ -119,9 +119,9 @@ Technical implementation of EU AI Act requirements for high-risk AI systems: log
 
 | Week | Milestone | Module |
 |------|-----------|--------|
-| S1–4 | Java/Spring Boot foundations, project setup | Setup |
-| S5–6 | First embedding pipeline with Weaviate | 01 |
-| S7–8 | LangChain4j integration, first RAG end-to-end | 01 |
+| S1–4 | Java/Spring Boot foundations, project setup | ✅ Setup |
+| S5–6 | First embedding pipeline with Weaviate | ✅ 01 |
+| S7–8 | LangChain4j integration, first RAG end-to-end | ✅ 01 |
 | S9–10 | Full RAG pipeline with basic evaluation | 01 + 04 |
 | S11–12 | Baseline benchmarks published | 01 + 04 |
 | S13–14 | Chunking strategy comparison | 02 |
@@ -138,7 +138,7 @@ Articles and posts from this project:
 
 - [Reliable Enterprise AI: Why Architecture Matters More Than Prompts](https://levelup.gitconnected.com/beyond-the-prompt-why-enterprise-ai-needs-architecture-not-just-clever-prompts-3f2523baa47f)
 - [Reliable Enterprise AI: What Enterprise Architects Must Understand About Transformers](https://medium.com/gitconnected/reliable-enterprise-ai-attention-is-all-you-need-explained-for-enterprise-architects-bfaebf2c0089)
-
+- [RAG Is Not One Thing: A Practical Architecture Map for Reliable Enterprise AI Systems] (In progress)
 ---
 
 ## About

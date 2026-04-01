@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: advanced-retrieval
+
+weaviate:
+  host: localhost:8090
+  scheme: http
+  object-class: EnterpriseDocument   # misma clase que módulo 01
+
+langchain4j:
+  ollama:
+    chat-model:
+      base-url: http://localhost:11434
+      model-name: llama3.2
+      temperature: 0.0
+      timeout: 120s
+    embedding-model:
+      base-url: http://localhost:11434
+      model-name: nomic-embed-text
+      timeout: 60s
+
+logging:
+  level:
+    root: INFO
+    ai.reliable.enterprise: DEBUG
+    dev.langchain4j: INFO
+    com.phoneix.advancedretrieval: DEBUG
+  file:
+    name: logs/application.log

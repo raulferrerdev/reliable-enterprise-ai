@@ -1,0 +1,57 @@
+plugins {
+    id 'java'
+    id("org.springframework.boot") version "3.4.5"
+    id("io.spring.dependency-management") version "1.1.7"
+}
+
+group = "ai.reliable.enterprise"
+version = "0.0.1-SNAPSHOT"
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+ext {
+    set("langchain4jVersion", "1.0.0")
+    set("langchain4jBetaVersion", "1.0.0-beta4")
+    set("langchain4jWeaviateVersion", "1.10.0-beta18")
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+
+    // LangChain4j core
+    implementation("dev.langchain4j:langchain4j:${property("langchain4jVersion")}")
+
+    // Ollama
+    implementation("dev.langchain4j:langchain4j-ollama:${property("langchain4jBetaVersion")}")
+    implementation("dev.langchain4j:langchain4j-ollama-spring-boot-starter:${property("langchain4jBetaVersion")}")
+
+    // Spring Boot starter
+    implementation("dev.langchain4j:langchain4j-spring-boot-starter:${property("langchain4jBetaVersion")}")
+
+    // Weaviate
+    implementation("dev.langchain4j:langchain4j-weaviate:${property("langchain4jWeaviateVersion")}")
+
+    // HTTP client explícito para LangChain4j — evita conflicto con WebFlux
+    implementation("dev.langchain4j:langchain4j-http-client-spring-restclient:${property("langchain4jBetaVersion")}")
+
+    // HTTP client para Hybrid Search directo contra Weaviate API
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("dev.langchain4j:langchain4j-core:${property("langchain4jVersion")}")
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
