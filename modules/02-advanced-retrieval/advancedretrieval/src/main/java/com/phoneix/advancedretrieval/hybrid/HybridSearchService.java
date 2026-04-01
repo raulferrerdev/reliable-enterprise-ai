@@ -1,5 +1,6 @@
 package com.phoneix.advancedretrieval.hybrid;
 
+import com.phoneix.advancedretrieval.config.RetrievalAuditLog;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,7 @@ public class HybridSearchService {
     private final ChatModel chatModel;
     private final EmbeddingModel embeddingModel;
     private final WebClient weaviateClient;
+    private final RetrievalAuditLog auditLog;
 
     @Value("${weaviate.object-class}")
     private String objectClass;
@@ -34,38 +37,81 @@ public class HybridSearchService {
     public HybridSearchService(ChatModel chatModel,
                                EmbeddingModel embeddingModel,
                                @Value("${weaviate.scheme}") String scheme,
-                               @Value("${weaviate.host}") String host) {
+                               @Value("${weaviate.host}") String host,
+                               RetrievalAuditLog auditLog) {
         this.chatModel = chatModel;
         this.embeddingModel = embeddingModel;
+        this.auditLog = auditLog;
         this.weaviateClient = WebClient.builder()
                 .baseUrl(scheme + "://" + host)
                 .build();
     }
 
     public HybridResponse query(String userQuestion) {
-        log.info("[HYBRID] ===== HYBRID SEARCH START =====");
-        log.info("[HYBRID] Question: {}", userQuestion);
+        String queryId = java.util.UUID.randomUUID().toString().substring(0, 8);
+        log.info("[{}] [HYBRID] ===== HYBRID SEARCH START =====", queryId);
+        log.info("[{}] [HYBRID] Question: {}", queryId, userQuestion);
 
         try {
             float[] queryVector = generateEmbedding(userQuestion);
-            log.info("[HYBRID] Vector OK, dims: {}", queryVector.length);
+            log.info("[{}] [HYBRID-VECTOR] Vector OK, dims: {}", queryId, queryVector.length);
 
             String graphqlQuery = buildHybridGraphQL(userQuestion, queryVector);
-            log.info("[HYBRID] GraphQL built, length: {}", graphqlQuery.length());
+            log.info("[{}] [HYBRID-GRAPHQL] Built, length: {}", queryId, graphqlQuery.length());
 
             List<String> chunks = executeHybridSearch(graphqlQuery);
-            log.info("[HYBRID] Chunks: {}", chunks.size());
+            log.info("[{}] [HYBRID-RESULTS] Chunks retrieved: {}", queryId, chunks.size());
+
+            HybridResponse response;
 
             if (chunks.size() < MIN_CHUNKS_REQUIRED) {
-                return HybridResponse.noContext(userQuestion, chunks.size());
+                response = HybridResponse.noContext(userQuestion, chunks.size());
+                log.warn("[{}] [HYBRID] Insufficient context: only {} chunks", queryId, chunks.size());
+            } else {
+                String context = String.join("\n\n---\n\n", chunks);
+                String answer = chatModel.chat(buildPrompt(userQuestion, context));
+                response = HybridResponse.of(userQuestion, answer, chunks.size(), HYBRID_ALPHA);
             }
 
-            String context = String.join("\n\n---\n\n", chunks);
-            String answer = chatModel.chat(buildPrompt(userQuestion, context));
-            return HybridResponse.of(userQuestion, answer, chunks.size(), HYBRID_ALPHA);
+            // ===== AUDIT LOGGING SECTION =====
+            // Log hybrid search metrics
+            log.info("[{}] [HYBRID-AUDIT] alpha={} | chunks_retrieved={} | context_found={}",
+                    queryId,
+                    response.alpha(),
+                    response.chunksRetrieved(),
+                    response.contextFound());
+
+            // Full audit record
+            log.info("""
+                    [{}] [HYBRID-COMPLETE] \
+                    question="{}" | \
+                    chunks_retrieved={} | \
+                    alpha={} | \
+                    context_found={} | \
+                    ts={}
+                    """,
+                    queryId,
+                    userQuestion,
+                    response.chunksRetrieved(),
+                    response.alpha(),
+                    response.contextFound(),
+                    Instant.now()
+            );
+
+            // Inject into enterprise audit system
+            auditLog.log(new RetrievalAuditLog.RetrievalEvent(
+                    queryId,
+                    response.question(),
+                    response.chunksRetrieved(),
+                    response.contextFound(),
+                    response.answer(),
+                    Instant.now()
+            ));
+
+            return response;
 
         } catch (Exception e) {
-            log.error("[HYBRID] FAILED at: {}", e.getMessage(), e);
+            log.error("[{}] [HYBRID] FAILED at: {}", queryId, e.getMessage(), e);
             return HybridResponse.noContext(userQuestion, 0);
         }
     }
@@ -155,13 +201,13 @@ public class HybridSearchService {
         return """
                 You are an enterprise AI assistant. Answer ONLY using the context below.
                 If insufficient, say so explicitly.
-
+ 
                 CONTEXT:
                 %s
-
+ 
                 QUESTION:
                 %s
-
+ 
                 ANSWER:
                 """.formatted(context, question);
     }
@@ -177,10 +223,28 @@ public class HybridSearchService {
             double alpha,
             boolean contextFound
     ) {
-        static HybridResponse of(String q, String a, int chunks, double alpha) {
-            return new HybridResponse(q, a, chunks, alpha, true);
+        /**
+         * Factory method for successful hybrid search results.
+         * Combines BM25 (keyword) + vector (semantic) retrieval.
+         *
+         * @param q the user's question
+         * @param a the generated answer
+         * @param chunks number of chunks retrieved
+         * @param hybridAlpha the balance factor (0.0=pure BM25, 1.0=pure vector, 0.5=balanced)
+         * @return HybridResponse with context found
+         */
+        static HybridResponse of(String q, String a, int chunks, double hybridAlpha) {
+            return new HybridResponse(q, a, chunks, hybridAlpha, true);
         }
 
+        /**
+         * Factory method for failed hybrid search results.
+         * Insufficient chunks retrieved.
+         *
+         * @param q the user's question
+         * @param chunks number of chunks that were retrieved
+         * @return HybridResponse with no context
+         */
         static HybridResponse noContext(String q, int chunks) {
             return new HybridResponse(q,
                     "No sufficient context found via hybrid search.",

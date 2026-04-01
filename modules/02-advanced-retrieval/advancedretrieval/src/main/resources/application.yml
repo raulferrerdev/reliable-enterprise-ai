@@ -21,6 +21,9 @@ langchain4j:
 
 logging:
   level:
+    root: INFO
     ai.reliable.enterprise: DEBUG
     dev.langchain4j: INFO
     com.phoneix.advancedretrieval: DEBUG
+  file:
+    name: logs/application.log
