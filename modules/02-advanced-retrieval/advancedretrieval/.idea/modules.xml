@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/advancedretrieval.main.iml" filepath="$PROJECT_DIR$/.idea/modules/advancedretrieval.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/advancedretrieval_main.iml" filepath="$PROJECT_DIR$/.idea/modules/advancedretrieval_main.iml" group="advancedretrieval" />
     </modules>
   </component>
 </project>
